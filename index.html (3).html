@@ -1,0 +1,320 @@
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AL AMIN AGRO SHOP</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f3f7f1;color:#193b28;font-family:Arial,sans-serif}
+header{background:#075b32;color:white;padding:17px}
+.nav{max-width:1100px;margin:auto;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.brand{font-size:21px;font-weight:bold}
+.brand span{color:#c9ed72}
+button{cursor:pointer;border:0;border-radius:8px;padding:11px 15px;font-weight:bold}
+.adminBtn{background:#e3f5c9;color:#075b32}
+.hero{background:linear-gradient(120deg,#064324,#159452);color:white;text-align:center;padding:48px 15px}
+.hero h1{font-size:29px}
+.hero p{line-height:1.8}
+.container{max-width:1100px;margin:auto;padding:20px 13px}
+.search{width:100%;padding:14px;border:1px solid #d6e2d5;border-radius:9px;font-size:16px}
+.categories{display:flex;gap:8px;overflow:auto;padding:14px 0}
+.categories button{white-space:nowrap;background:white;color:#176037;border:1px solid #cfe0d0}
+.categories button.active{background:#08733e;color:white}
+.products{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.card{background:white;border-radius:12px;overflow:hidden;box-shadow:0 3px 12px #00000010}
+.card img{width:100%;height:155px;object-fit:cover;background:#e3eee1}
+.info{padding:12px}
+.info h3{font-size:16px;margin:3px 0 8px}
+.price{font-size:19px;color:#08743c;font-weight:bold;margin:9px 0}
+.add{background:#08743c;color:white;width:100%}
+.panel{background:white;padding:17px;border-radius:12px;margin:18px 0;box-shadow:0 3px 12px #0001}
+.panel input,.panel select,.panel textarea{width:100%;padding:12px;margin:7px 0 13px;border:1px solid #cbd9cc;border-radius:8px;font-size:15px}
+.green{background:#08743c;color:white}
+.red{background:#c93636;color:white}
+.gray{background:#e9eee8;color:#23452e}
+.cartItem{padding:10px 0;border-bottom:1px solid #eee}
+footer{background:#073e25;color:white;text-align:center;padding:25px;line-height:2;margin-top:30px}
+.hidden{display:none!important}
+@media(max-width:650px){.products{grid-template-columns:repeat(2,1fr)}.card img{height:125px}.brand{font-size:17px}}
+</style>
+</head>
+<body>
+
+<header>
+<div class="nav">
+<div>
+<div class="brand">🌱 AL AMIN <span>AGRO SHOP</span></div>
+<small>কৃষির বিশ্বস্ত অনলাইন ঠিকানা</small>
+</div>
+<div>
+<button class="adminBtn" onclick="openAdmin()">⚙ Admin</button>
+</div>
+</div>
+</header>
+
+<section class="hero">
+<h1>আপনার কৃষির বিশ্বস্ত সঙ্গী 🌱</h1>
+<p>উন্নতমানের বীজ, গাছের চারা ও বাগানের প্রয়োজনীয় পণ্য</p>
+<button class="adminBtn" onclick="document.getElementById('shop').scrollIntoView()">পণ্য কিনুন</button>
+</section>
+
+<main class="container" id="shop">
+<h2 style="text-align:center">🌿 আমাদের পণ্য</h2>
+<input class="search" id="search" placeholder="পণ্য খুঁজুন..." oninput="render()">
+
+<div class="categories">
+<button class="active" onclick="choose('সব',this)">সব পণ্য</button>
+<button onclick="choose('সবজি বীজ',this)">সবজি বীজ</button>
+<button onclick="choose('ফুলের বীজ',this)">ফুলের বীজ</button>
+<button onclick="choose('বাগান',this)">বাগানের পণ্য</button>
+</div>
+
+<div class="products" id="products"></div>
+
+<section class="panel" id="cart">
+<h2>🛒 আপনার শপিং কার্ট</h2>
+<div id="cartItems">কার্ট খালি</div>
+<h3 id="total">মোট: ৳০</h3>
+<input id="customer" placeholder="আপনার নাম">
+<input id="phone" type="tel" placeholder="মোবাইল নম্বর">
+<textarea id="address" placeholder="সম্পূর্ণ ঠিকানা"></textarea>
+<button class="green" style="width:100%" onclick="order()">WhatsApp-এ অর্ডার করুন</button>
+</section>
+
+<!-- ADMIN LOGIN -->
+<section class="panel hidden" id="login">
+<h2>🔐 Admin Login</h2>
+<input type="password" id="password" placeholder="Admin Password">
+<button class="green" onclick="login()">প্রবেশ করুন</button>
+<button class="gray" onclick="closeAdmin()">বন্ধ করুন</button>
+<p id="error" style="color:red"></p>
+</section>
+
+<!-- ADMIN DASHBOARD -->
+<section class="panel hidden" id="dashboard">
+<h2>⚙️ Admin Dashboard</h2>
+<p>এখান থেকে আপনার দোকানের পণ্য নিয়ন্ত্রণ করুন।</p>
+
+<h3 id="formTitle">নতুন পণ্য যোগ করুন</h3>
+<input id="pname" placeholder="পণ্যের নাম">
+<input id="pprice" type="number" placeholder="পণ্যের দাম">
+<select id="pcat">
+<option>সবজি বীজ</option>
+<option>ফুলের বীজ</option>
+<option>বাগান</option>
+</select>
+<textarea id="pdesc" placeholder="পণ্যের বিবরণ"></textarea>
+<label>পণ্যের ছবি নির্বাচন করুন</label>
+<input id="pimage" type="file" accept="image/*">
+<img id="preview" style="width:120px;max-height:120px;object-fit:contain">
+<button class="green" style="width:100%" onclick="saveProduct()">💾 পণ্য সংরক্ষণ করুন</button>
+<button class="gray" style="width:100%;margin-top:8px" onclick="resetForm()">নতুন পণ্য লিখুন</button>
+
+<hr>
+<h3>📦 পণ্য পরিচালনা</h3>
+<div id="adminProducts"></div>
+<button class="red" onclick="logout()">Logout</button>
+</section>
+</main>
+
+<footer>
+<h2>🌱 AL AMIN AGRO SHOP</h2>
+<p>কৃষির বিশ্বস্ত অনলাইন ঠিকানা</p>
+<p>বীজ | চারা | বাগানের সরঞ্জাম</p>
+<p>© 2026 All Rights Reserved</p>
+</footer>
+
+<script>
+// আপনার WhatsApp নম্বর বসান: 8801XXXXXXXXX
+const WHATSAPP="8801XXXXXXXXX";
+
+// প্রাথমিক পণ্যের ছবি: আসল গাছ/ফসলের ছবি, প্যাকেটের ছবি নয়
+const initial=[
+{name:"ধনিয়া বীজ",price:40,cat:"সবজি বীজ",desc:"ধনিয়া চাষের বীজ",img:"https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=500"},
+{name:"পালং শাক",price:40,cat:"সবজি বীজ",desc:"পালং শাকের বীজ",img:"https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=500"},
+{name:"টমেটো",price:60,cat:"সবজি বীজ",desc:"টমেটো চাষের বীজ",img:"https://images.unsplash.com/photo-1546094096-0df4bcaaa337?w=500"},
+{name:"গাঁদা ফুল",price:50,cat:"ফুলের বীজ",desc:"গাঁদা ফুলের বীজ",img:"https://images.unsplash.com/photo-1508610048659-a06b669e3321?w=500"},
+{name:"জিনিয়া ফুল",price:50,cat:"ফুলের বীজ",desc:"জিনিয়া ফুলের বীজ",img:"https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=500"},
+{name:"গাছের টব",price:80,cat:"বাগান",desc:"বাগানের প্লাস্টিক টব",img:"https://images.unsplash.com/photo-1485955900006-10f4d324d411?w=500"},
+{name:"বাগানের সরঞ্জাম",price:150,cat:"বাগান",desc:"গাছের পরিচর্যার সরঞ্জাম",img:"https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=500"}
+];
+
+let products=[];
+try{
+products=JSON.parse(localStorage.getItem("agro_products"))||initial;
+}catch(e){products=initial}
+
+let cart=[];
+let active="সব";
+let editing=-1;
+let uploadedImage="";
+
+function persist(){
+try{
+localStorage.setItem("agro_products",JSON.stringify(products));
+}catch(e){
+alert("স্টোরেজ পূর্ণ হয়েছে। ছোট ছবি ব্যবহার করুন অথবা পুরোনো ছবি মুছুন।");
+}
+}
+
+function render(){
+let q=document.getElementById("search").value.toLowerCase();
+let list=products.map((p,i)=>({...p,index:i})).filter(p=>
+(active==="সব"||p.cat===active)&&p.name.toLowerCase().includes(q)
+);
+document.getElementById("products").innerHTML=list.map(p=>`
+<div class="card">
+<img src="${p.img}" alt="${p.name}" onerror="this.src='https://placehold.co/400x300/e5f2e3/176037?text=Agro+Product'">
+<div class="info">
+<h3>${p.name}</h3>
+<p>${p.desc||""}</p>
+<div class="price">৳${p.price}</div>
+<button class="add" onclick="add(${p.index})">কার্টে যোগ করুন</button>
+</div></div>`).join("")||"কোনো পণ্য পাওয়া যায়নি";
+}
+
+function choose(c,b){
+active=c;
+document.querySelectorAll(".categories button").forEach(x=>x.classList.remove("active"));
+b.classList.add("active");
+render();
+}
+
+function add(i){
+cart.push(products[i]);
+updateCart();
+alert("কার্টে যোগ হয়েছে");
+}
+
+function updateCart(){
+document.getElementById("cartItems").innerHTML=cart.map((p,i)=>
+`<div class="cartItem">${p.name} - ৳${p.price}
+<button class="red" onclick="removeItem(${i})">মুছুন</button></div>`
+).join("")||"কার্ট খালি";
+document.getElementById("total").innerText="মোট: ৳"+cart.reduce((s,p)=>s+Number(p.price),0);
+}
+
+function removeItem(i){cart.splice(i,1);updateCart()}
+
+function order(){
+if(!cart.length)return alert("আগে পণ্য যোগ করুন");
+let n=document.getElementById("customer").value.trim();
+let ph=document.getElementById("phone").value.trim();
+let ad=document.getElementById("address").value.trim();
+if(!n||!ph||!ad)return alert("নাম, ফোন ও ঠিকানা দিন");
+if(!/^8801[3-9]\d{8}$/.test(WHATSAPP))return alert("প্রথমে কোডে দোকানের WhatsApp নম্বর বসান");
+let msg="নতুন অর্ডার - AL AMIN AGRO SHOP\n";
+msg+="নাম: "+n+"\nমোবাইল: "+ph+"\nঠিকানা: "+ad+"\n\n";
+cart.forEach(p=>msg+=p.name+" - ৳"+p.price+"\n");
+msg+="মোট পণ্যমূল্য: ৳"+cart.reduce((s,p)=>s+Number(p.price),0);
+window.open("https://wa.me/"+WHATSAPP+"?text="+encodeURIComponent(msg),"_blank");
+}
+
+// ADMIN
+function openAdmin(){
+document.getElementById("login").classList.remove("hidden");
+document.getElementById("login").scrollIntoView({behavior:"smooth"});
+}
+function closeAdmin(){
+document.getElementById("login").classList.add("hidden");
+}
+function login(){
+if(document.getElementById("password").value==="1234"){
+document.getElementById("login").classList.add("hidden");
+document.getElementById("dashboard").classList.remove("hidden");
+adminRender();
+}else{
+document.getElementById("error").innerText="ভুল পাসওয়ার্ড!";
+}
+}
+function logout(){
+document.getElementById("dashboard").classList.add("hidden");
+document.getElementById("password").value="";
+resetForm();
+}
+function adminRender(){
+document.getElementById("adminProducts").innerHTML=products.map((p,i)=>`
+<div class="cartItem">
+<b>${p.name}</b> - ৳${p.price}
+<br>
+<button class="gray" onclick="editProduct(${i})">Edit</button>
+<button class="red" onclick="deleteProduct(${i})">Delete</button>
+</div>`).join("");
+}
+
+document.getElementById("pimage").addEventListener("change",function(){
+let file=this.files[0];
+if(!file)return;
+if(file.size>700000){
+alert("৭০০ KB-এর ছোট ছবি ব্যবহার করুন");
+this.value="";
+return;
+}
+let reader=new FileReader();
+reader.onload=e=>{
+uploadedImage=e.target.result;
+document.getElementById("preview").src=uploadedImage;
+};
+reader.readAsDataURL(file);
+});
+
+function saveProduct(){
+let name=document.getElementById("pname").value.trim();
+let price=Number(document.getElementById("pprice").value);
+let cat=document.getElementById("pcat").value;
+let desc=document.getElementById("pdesc").value.trim();
+
+if(!name||price<=0)return alert("নাম ও সঠিক দাম দিন");
+
+let old=editing>=0?products[editing]:{};
+let item={
+name,price,cat,desc,
+img:uploadedImage||old.img||"https://placehold.co/400x300?text=Product"
+};
+
+if(editing>=0)products[editing]=item;
+else products.unshift(item);
+
+persist();
+render();
+adminRender();
+resetForm();
+alert("পণ্য সংরক্ষণ হয়েছে");
+}
+
+function editProduct(i){
+let p=products[i];
+editing=i;
+document.getElementById("formTitle").innerText="পণ্য পরিবর্তন করুন";
+document.getElementById("pname").value=p.name;
+document.getElementById("pprice").value=p.price;
+document.getElementById("pcat").value=p.cat;
+document.getElementById("pdesc").value=p.desc||"";
+uploadedImage="";
+document.getElementById("preview").src=p.img;
+document.getElementById("dashboard").scrollIntoView({behavior:"smooth"});
+}
+
+function deleteProduct(i){
+if(!confirm("পণ্যটি মুছে ফেলবেন?"))return;
+products.splice(i,1);
+persist();
+render();
+adminRender();
+resetForm();
+}
+
+function resetForm(){
+editing=-1;
+uploadedImage="";
+document.getElementById("formTitle").innerText="নতুন পণ্য যোগ করুন";
+["pname","pprice","pdesc","pimage"].forEach(id=>document.getElementById(id).value="");
+document.getElementById("preview").src="";
+}
+
+render();
+updateCart();
+</script>
+</body>
+</html>
